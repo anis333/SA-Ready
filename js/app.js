@@ -81,6 +81,10 @@ function ring(frac,size=24){
   const w=size>40?6:3,r=(size-w)/2,c=2*Math.PI*r,h=size/2;
   return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle class="ring-t" cx="${h}" cy="${h}" r="${r}"/>${frac>0?`<circle class="ring-f" cx="${h}" cy="${h}" r="${r}" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${(c*(1-Math.min(1,frac))).toFixed(2)}" transform="rotate(-90 ${h} ${h})"/>`:''}</svg>`;
 }
+function sndSVG(on){
+  const sp='<path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4z"/>';
+  return `<svg viewBox="0 0 24 24">${sp}${on?'<path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.6a7.5 7.5 0 0 1 0 10.8"/>':'<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
+}
 function icoHTML(tid,big){const u=TOPIC_UI[tid];return `<span class="ico${big?' big':''}" style="background:${u.col}" aria-hidden="true">${u.ico}</span>`;}
 function navbar(backLabel,act,title='',right=''){
   return `<nav class="navbar"><button class="back" data-act="${act}"><span aria-hidden="true">‹</span>${esc(backLabel)}</button><b class="ntitle">${esc(title)}</b><span class="nright">${right}</span></nav>`;
@@ -114,7 +118,7 @@ function renderHome(){
     const n=t.levels.length,ss=t.levels.map((_,i)=>lvStars(t.id,i+1,S.mode)),done=ss.filter(s=>s>0).length,sum=ss.reduce((a,b)=>a+b,0);
     return `<button class="row" data-act="open-topic" data-topic="${t.id}">${icoHTML(t.id)}<span class="t"><b>${esc(t.name)}</b><span>${done?`${done} von ${n} Level · ★ ${sum} von ${n*3}`:'noch nicht begonnen'}</span></span><span class="r">${ring(sum/(n*3))}<span class="chev" aria-hidden="true">›</span></span></button>`;}).join('')}</div>
   <h2 class="sh">Einstellungen</h2>
-  <div class="group"><div class="row"><span class="t"><b>Ton bei Richtig und Falsch</b></span><button class="switch" role="switch" aria-checked="${soundOn}" data-act="sound" aria-label="Ton bei Richtig und Falsch"><i></i></button></div></div>`;
+  <div class="group"><button class="row" role="switch" aria-checked="${soundOn}" data-act="sound" aria-label="Ton bei Richtig und Falsch"><span class="ico snd${soundOn?'':' off'}" id="snd-ico" aria-hidden="true">${sndSVG(soundOn)}</span><span class="switch" aria-checked="${soundOn}" aria-hidden="true"><i></i></span></button></div>`;
 }
 function renderTopic(){
   const T=TOPIC(S.topic),h=S.mode==='h',cur=suggested(T.id);
@@ -347,6 +351,9 @@ document.addEventListener('click',e=>{
   else if(a==='sound'){
     soundOn=!soundOn;store.set(LS.sound,soundOn);
     b.setAttribute('aria-checked',String(soundOn));
+    const sw=b.querySelector('.switch'),ic=b.querySelector('#snd-ico');
+    if(sw)sw.setAttribute('aria-checked',String(soundOn));
+    if(ic){ic.innerHTML=sndSVG(soundOn);ic.classList.toggle('off',!soundOn);}
     if(soundOn)tone(true);
   }
   else if(a==='notes-open')openNotes(b.dataset.topic||S.topic,Number(b.dataset.lv));

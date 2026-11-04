@@ -1,7 +1,7 @@
 /* SA-Ready · Service Worker
    Speichert die App auf dem Gerät, damit sie auch ohne Internet startet.
    Bei einer neuen Version CACHE hochzählen. */
-const CACHE='sa-ready-v1';
+const CACHE='sa-ready-v2';
 const FILES=[
   './',
   './index.html',

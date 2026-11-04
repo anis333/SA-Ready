@@ -107,7 +107,10 @@ button.row:active:not(:disabled){background:var(--press)}
 .row.big .ring circle{stroke-width:6}
 
 /* Schalter (Ton) */
-.switch{width:51px;height:31px;border-radius:16px;border:0;background:var(--fill);position:relative;cursor:pointer;flex:none;padding:0;transition:background .2s}
+.ico.snd{width:36px;height:36px;border-radius:9px;background:var(--acc);color:var(--acc-ink);transition:background .2s,color .2s}
+.ico.snd.off{background:var(--fill);color:var(--mut)}
+.ico.snd svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.switch{width:51px;height:31px;border-radius:16px;border:0;background:var(--fill);position:relative;cursor:pointer;flex:none;padding:0;margin-left:auto;transition:background .2s}
 .switch i{position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.22);transition:transform .2s}
 .switch[aria-checked="true"]{background:var(--acc)}
 .switch[aria-checked="true"] i{transform:translateX(20px)}
