@@ -1,0 +1,185 @@
+/* SA-Ready · Mechanik · Layout „Konstruktionszeichnung“
+   Blaupause: tiefblaues Zeichenblatt mit Raster und Rahmen, helle Linien, Bernstein für Kräfte und Hauptaktionen,
+   Beschriftung in Schreibmaschinenschrift, eckige Kanten, Stückliste und Schriftfeld.
+   Gilt nur im Fach Mechanik (html.m); Mathe behält das ruhige Layout „Klar“. */
+html.m{
+  --bg:#0A2A4E; --card:#0F3A6B; --ink:#EAF4FF; --mut:#A3C0E2; --ter:#7C9FC8; --sep:rgba(170,212,255,.26);
+  --fill:#174B80; --seg-on:#FFC933; --press:#144677; --off:#33639A;
+  --acc:#FFC933; --acc-ink:#0A2A4E; --acc-soft:rgba(255,201,51,.15);
+  --ok:#7EF0B5; --ok-s:rgba(126,240,181,.14); --bad:#FF9A8F; --bad-s:rgba(255,154,143,.16); --hint:rgba(255,201,51,.10);
+  --tab:rgba(7,32,61,.95);
+  --line:rgba(176,216,255,.55); --cy:#6FD3FF; --well:rgba(4,22,44,.5);
+  color-scheme:dark;
+}
+html.m body{
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(rgba(150,200,255,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(150,200,255,.13) 1px,transparent 1px),
+    linear-gradient(rgba(150,200,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(150,200,255,.055) 1px,transparent 1px);
+  background-size:96px 96px,96px 96px,16px 16px,16px 16px;
+}
+/* Zeichnungsrahmen */
+html.m body::before{content:"";position:fixed;z-index:1;pointer-events:none;border:1px solid rgba(176,216,255,.34);
+  left:max(4px,env(safe-area-inset-left,0px));right:max(4px,env(safe-area-inset-right,0px));
+  top:calc(4px + env(safe-area-inset-top,0px));bottom:calc(4px + env(safe-area-inset-bottom,0px))}
+html.m .app{padding-top:12px}
+
+/* Schrift: Kopfzeilen und Beschriftungen in Schreibmaschinenschrift */
+html.m .lt,html.m .sh,html.m .ntitle,html.m .qtag,html.m .hchip,html.m .learn h2,html.m h3.sub,html.m .cont small,html.m .foot,html.m .fine,html.m .mini,html.m .tabbar button{font-family:var(--mono)}
+html.m .lt{font-size:1.4rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1.2}
+html.m .lt-head.with-ico .lt{font-size:1.2rem}
+html.m .sh{font-size:.7rem;font-weight:600;letter-spacing:.14em;color:var(--ter);margin:14px 4px 0;display:flex;align-items:center;gap:10px}
+html.m .sh::after{content:"";flex:1;height:1px;background:var(--sep)}
+html.m .lt-sub{font-size:.88rem}
+html.m .ntitle{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}
+html.m .tabbar button{font-size:.6rem;letter-spacing:.04em;text-transform:uppercase}
+html.m .tabbar{border-top:1px solid var(--line)}
+html.m .back,html.m .nlink{font-family:var(--mono);font-size:.92rem}
+
+/* Titelblock */
+html.m .mhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:4px 0 2px;padding:11px 12px;border:1.5px solid var(--line);background:var(--well);position:relative}
+html.m .mhead small{display:block;font:600 .64rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ter)}
+html.m .mhead>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+html.m .mhead .mh-r{text-align:right;border-left:1px solid var(--line);padding-left:12px;flex:none}
+html.m .mhead .mh-r b{font:700 1rem var(--mono);color:var(--acc);white-space:nowrap}
+html.m .mhead.with-ico{justify-content:flex-start;align-items:center;gap:14px}
+
+/* Symbole */
+html.m .ico:not(.snd){background:transparent!important;border:1.5px solid var(--acc);color:var(--acc);border-radius:2px}
+html.m .ico.snd{border-radius:2px}
+
+/* Gruppen, Karten, Schalter */
+html.m .group,html.m .steps,html.m .bom{border-radius:3px;border:1px solid var(--line)}
+html.m .segc{border-radius:3px;border:1px solid var(--line);background:var(--well);padding:2px}
+html.m .segc button{border-radius:2px;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+html.m .segc button[aria-checked="true"]{color:var(--acc-ink);box-shadow:none}
+html.m .cont{border-radius:3px;border:1px solid var(--line)}
+html.m .play{border-radius:2px}
+html.m .cont small{letter-spacing:.12em}
+html.m .num{border-radius:2px;border:1px solid var(--line);background:transparent}
+html.m .num.full{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
+html.m .num.cur{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+html.m .switch{border-radius:3px;border:1px solid var(--line)}
+html.m .switch i{border-radius:2px;box-shadow:none}
+html.m .btn{border-radius:3px;font-family:var(--mono);font-size:.92rem;letter-spacing:.06em;text-transform:uppercase}
+html.m .btn.tint,html.m .btn.ghost{border:1px solid var(--acc);background:var(--acc-soft);color:var(--acc)}
+html.m .btn.plain{border:1px solid var(--line)}
+html.m .hint{border-radius:3px;border:1px dashed var(--acc)}
+html.m .memo{border-radius:3px;border:1px dashed var(--acc)}
+html.m .toast{border-radius:3px}
+html.m .mark{color:#0A2A4E}
+html.m .st{letter-spacing:.04em}
+
+/* Kacheln der Blätter */
+html.m .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+html.m .tile{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:10px 12px 12px;background:var(--card);border:1px solid var(--line);border-radius:3px;text-align:left;font:inherit;color:inherit;cursor:pointer;min-height:158px}
+html.m .tile:active{background:var(--press)}
+html.m .tile:last-child:nth-child(odd){grid-column:1/-1;min-height:0}
+html.m .tile .tn{font:600 .62rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ter)}
+html.m .tile b{font:700 1rem/1.2 var(--mono);letter-spacing:.02em;text-transform:uppercase}
+html.m .tile .ts{font-size:.8rem;color:var(--mut);font-variant-numeric:tabular-nums}
+html.m .tile .dimbar{margin-top:auto}
+html.m .row>.dimbar{width:56px;flex:none}
+html.m .row.big>.dimbar{width:84px}
+
+/* Stückliste */
+html.m .bom{background:var(--card);overflow:hidden}
+html.m .bom-h,html.m .bom-r{display:grid;grid-template-columns:40px minmax(0,1fr) 84px;align-items:center;gap:8px;padding:10px}
+html.m .bom-h{padding:6px 10px;font:600 .62rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ter);background:var(--well);border-bottom:1px solid var(--line)}
+html.m .bom-h span:first-child{text-align:center}
+html.m .bom-h span:last-child{text-align:right}
+html.m .bom-r{width:100%;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+html.m .bom-r+.bom-r{border-top:1px solid var(--sep)}
+html.m .bom-r:active{background:var(--press)}
+html.m .bom-r .t{display:flex;flex-direction:column;gap:1px;min-width:0;line-height:1.3}
+html.m .bom-r .t b{font-weight:600;font-size:1rem}
+html.m .bom-r .t>span{color:var(--mut);font-size:.84rem}
+html.m .bom-r .t code{font:500 .78rem var(--mono);color:var(--cy);overflow-wrap:anywhere;margin-top:2px}
+html.m .bom-r .t .meta{color:var(--acc);font-size:.76rem;font-weight:600;margin-top:2px}
+html.m .bom-r .r{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--mut);font-size:.92rem}
+html.m .pos{width:34px;height:34px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:2px;font:700 .95rem var(--mono);justify-self:center}
+html.m .pos.full{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
+html.m .pos.cur{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+html.m .row .t code{color:var(--cy)}
+
+/* Schriftfeld */
+html.m .tblock{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;border:1.5px solid var(--line);margin-top:8px;background:var(--well)}
+html.m .tblock div{padding:5px 8px;border-left:1px solid var(--line);min-width:0}
+html.m .tblock div:first-child{border-left:0}
+html.m .tblock small{display:block;font:600 .54rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ter)}
+html.m .tblock b{font:600 .76rem var(--mono);overflow-wrap:anywhere}
+
+/* Aufgabe */
+html.m .qprog{font-family:var(--mono)}
+html.m .qprog .track{border-radius:0;height:5px;background:var(--fill);border:1px solid var(--sep)}
+html.m .qprog .track span{border-radius:0}
+html.m .qcard{border-radius:3px;border:1.5px solid var(--line);outline:1px solid var(--sep);outline-offset:3px;margin:6px 3px 4px}
+html.m .qtag{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--sep)}
+html.m .hchip{border-radius:2px}
+html.m .qlabel{font-size:.9rem}
+html.m .qeq{font-family:var(--mono);font-weight:600;letter-spacing:0}
+html.m .qeq.long{font-family:var(--font)}
+html.m .given span{border-radius:2px;border:1px solid var(--sep);background:var(--well);font-family:var(--mono);font-size:.84rem}
+html.m .fig{background:var(--well);border:1px dashed var(--sep);padding:8px 6px 4px;border-radius:2px}
+html.m .ans{border-radius:3px;background:var(--well);border:1.5px solid var(--line)}
+html.m .ans:focus-within{border-color:var(--acc)}
+html.m .ans.ok{background:var(--ok-s);border-color:var(--ok)}
+html.m .ans.bad{background:var(--bad-s);border-color:var(--bad)}
+html.m .ans input{font-family:var(--mono)}
+html.m .mark{border-radius:2px}
+html.m .opt.ok{background:var(--ok-s)}
+html.m .opt.bad{background:var(--bad-s)}
+html.m .step .eq{font-family:var(--mono);font-size:.94rem}
+html.m .step.final .eq{color:var(--ok)}
+html.m .bigstars{font-family:var(--mono)}
+
+/* Grundlagen */
+html.m .learn .sec{border-radius:3px;border:1px solid var(--line)}
+html.m .learn h2{font:700 .98rem var(--mono);letter-spacing:.05em;text-transform:uppercase;display:flex;gap:8px;align-items:baseline}
+html.m .learn h2::before{content:"▪";color:var(--acc);font-size:.8em}
+html.m .learn .steps{background:var(--well)}
+html.m .kv div{background:var(--well);border:1px solid var(--sep);border-radius:2px;font-family:var(--mono);font-size:.88rem}
+html.m .learn .mfig{max-width:340px;margin:0 auto;display:block;width:100%;height:auto}
+html.m .learn .fig{margin:2px 0}
+html.m .mist b{color:var(--ink)}
+html.m .formula{font:600 1.05rem/1.4 var(--mono);background:var(--well);border:1px solid var(--line);border-radius:2px;padding:10px 12px;color:var(--acc);text-align:center;overflow-wrap:anywhere}
+
+/* Notizblatt */
+html.m .sheet{border-radius:3px 3px 0 0;border:1px solid var(--line);border-bottom:0}
+html.m .sheet-bg{background:rgba(2,14,30,.55)}
+html.m .sym button{border-radius:2px;border:1px solid var(--sep)}
+html.m .sheet textarea{border-radius:2px;border:1px solid var(--line)}
+
+/* Skizzen */
+.mfig{display:block;width:100%;height:auto;max-width:340px;margin:0 auto;overflow:visible;--l:#DCEBFF;--f:#FFC933;--c:#6FD3FF;font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace}
+.mfig text{font-size:13px;font-weight:600;fill:var(--l)}
+.mfig .t{fill:#EAF4FF}
+.mfig .tf{fill:var(--f);font-weight:700}
+.mfig .td{fill:var(--c);font-size:11.5px;font-weight:600}
+.mfig .tc{fill:var(--c);font-weight:700}
+.mfig .tc.hl{fill:#fff}
+.mfig .sbt{font-weight:600}
+.mfig .b,.mfig .g,.mfig .gh,.mfig .rp,.mfig .sb,.mfig .gt,.mfig .ax,.mfig .axa,.mfig .cd,.mfig .dm,.mfig .fa,.mfig .fc,.mfig .ar{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.mfig .b{stroke:var(--l);stroke-width:1.8}
+.mfig .bf{fill:#12487F;stroke:var(--l);stroke-width:1.8;stroke-linejoin:round}
+.mfig .bm{fill:#1D5DA0;stroke:var(--l);stroke-width:1.5}
+.mfig .g{stroke:var(--l);stroke-width:2}
+.mfig .gh{stroke:var(--l);stroke-width:1.2;opacity:.7}
+.mfig .rp{stroke:#E8D6A8;stroke-width:2.4}
+.mfig .sb{stroke:var(--l);stroke-width:3.4}
+.mfig .gt{stroke:var(--l);stroke-width:3.2}
+.mfig .pn{fill:#0A2A4E;stroke:var(--l);stroke-width:1.8}
+.mfig .sd{fill:var(--l)}
+.mfig .fa{stroke:var(--f);stroke-width:3.2}
+.mfig .fh{fill:var(--f)}
+.mfig .fc{stroke:var(--c);stroke-width:2.2}
+.mfig .fc.hl{stroke:#fff;stroke-width:3.4}
+.mfig .fch{fill:var(--c)}
+.mfig .fch.hl{fill:#fff}
+.mfig .ar{stroke:var(--c);stroke-width:1.8}
+.mfig .ah{fill:var(--c)}
+.mfig .ax,.mfig .axa{stroke:var(--l);stroke-width:1.2;opacity:.6}
+.mfig .axh{fill:var(--l);opacity:.6}
+.mfig .cd{stroke:var(--c);stroke-width:1.2;stroke-dasharray:4 3;opacity:.8}
+.mfig .dm{stroke:var(--c);stroke-width:1.2}
+.mfig .dh{fill:var(--c)}

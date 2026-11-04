@@ -4,28 +4,39 @@
 'use strict';
 
 /* =================== Speicher & Zustand =================== */
-const TOPIC_UI={gl:{ico:'x=',col:'#E8603C'},pot:{ico:'10ⁿ',col:'#2F6FEB'},ein:{ico:'mm',col:'#7A55E0'},win:{ico:'∠',col:'#D08A00'}};
+const MSVG=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const TOPIC_UI={gl:{ico:'x=',col:'#E8603C'},pot:{ico:'10ⁿ',col:'#2F6FEB'},ein:{ico:'mm',col:'#7A55E0'},win:{ico:'∠',col:'#D08A00'},
+  kg:{ico:'F',col:'#1B4F8A',svg:MSVG('<rect x="6" y="3" width="12" height="8"/><path d="M12 11v9"/><path d="M8.5 16.5L12 20.5l3.5-4"/>')},
+  zr:{ico:'F',col:'#1B4F8A',svg:MSVG('<path d="M4 20h16M4 20V4"/><path d="M4 20L17 7"/><path d="M11.5 7H17v5.5"/>')},
+  km:{ico:'M',col:'#1B4F8A',svg:MSVG('<circle cx="12" cy="12" r="1.6"/><path d="M12 4.5a7.5 7.5 0 1 1-7 4.8"/><path d="M4 4.5v5h5"/>')},
+  fm:{ico:'A',col:'#1B4F8A',svg:MSVG('<path d="M3 8h18"/><path d="M12 8l-5.5 9h11z"/><path d="M4 20.5h16"/>')},
+  st:{ico:'Σ',col:'#1B4F8A',svg:MSVG('<path d="M3 12h18"/><path d="M6.5 12L4 17.5h5zM17.5 12L15 17.5h5z"/><path d="M12 3v8M9.8 8.2L12 11.2l2.2-3"/>')}};
 const LS={prog:'sar-prog',notes:'sar-notes',ui:'sar-ui',sound:'sar-sound',lang:'sar-lang'};
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 };
 const ROOT={ueben:'home',grund:'list',notiz:'list',fort:'list'};
-const S={tab:'ueben',page:'home',topic:'gl',mode:'n',view:'tabs',lastTopic:'gl',
+const S={subj:null,tab:'ueben',page:'home',topic:'gl',mode:'n',view:'tabs',lastTopic:'gl',lastMech:'kg',
   lv:0,qs:[],i:0,score:0,correct:0,streak:0,maxStreak:0,tip:false,done:false,last:null,results:[],wrong:[],ex:1,
   quitArm:null,popArm:null,ignorePop:false};
 (()=>{const u=store.get(LS.ui,{})||{};
   if(TOPICS.some(t=>t.id===u.topic)){S.topic=u.topic;S.lastTopic=u.topic;}
+  if(MTOPICS.some(t=>t.id===u.mtopic))S.lastMech=u.mtopic;
   if(u.mode==='n'||u.mode==='h')S.mode=u.mode;})();
-function saveUI(){store.set(LS.ui,{topic:S.lastTopic,mode:S.mode});}
+function saveUI(){store.set(LS.ui,{topic:S.lastTopic,mtopic:S.lastMech,mode:S.mode});}
+const ALLT=[...TOPICS,...MTOPICS];
+const topicOf=id=>ALLT.find(t=>t.id===id)||TOPICS[0];
+const TL=()=>S.subj==='mech'?MTOPICS:TOPICS;
+const lastOf=()=>S.subj==='mech'?S.lastMech:S.lastTopic;
 let prog=store.get(LS.prog,{})||{};
 function saveProg(){store.set(LS.prog,prog);}
 const pkey=(t,l,m)=>`${t}:${l}:${m}`;
 const lvStars=(t,l,m)=>(prog[pkey(t,l,m)]||{}).stars||0;
 const lvBest=(t,l,m)=>(prog[pkey(t,l,m)]||{}).best||0;
-function starsFor(tid,m){return TOPIC(tid).levels.reduce((s,_,i)=>s+lvStars(tid,i+1,m),0);}
-const totalStars=()=>TOPICS.reduce((s,t)=>s+starsFor(t.id,'n')+starsFor(t.id,'h'),0);
-const maxStars=()=>TOPICS.reduce((s,t)=>s+t.levels.length*6,0);
+function starsFor(tid,m){return topicOf(tid).levels.reduce((s,_,i)=>s+lvStars(tid,i+1,m),0);}
+const totalStars=(L=TL())=>L.reduce((s,t)=>s+starsFor(t.id,'n')+starsFor(t.id,'h'),0);
+const maxStars=(L=TL())=>L.reduce((s,t)=>s+t.levels.length*6,0);
 
 /* =================== Ton =================== */
 let soundOn=store.get(LS.sound,true)!==false,actx=null;
@@ -67,14 +78,14 @@ function tone(ok){
 const scr=$('#screen');
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 const dv=s=>EN?String(s).replace(/(^|\s):(?=\s|$)/g,'$1÷'):String(s);
-function mk(s){return esc(dv(s)).replace(/\^\{([^}]*)\}/g,'<sup>$1</sup>');}
+function mk(s){return esc(dv(s)).replace(/\^\{([^}]*)\}/g,'<sup>$1</sup>').replace(/_\{([^}]*)\}/g,'<sub>$1</sub>');}
 function mkQ(s){return mk(s).replace(/\?/g,'<span class="var">?</span>');}
 function eqX(s){return mk(s).replace(/x/g,'<span class="var">x</span>');}
 function eqF(s,t){return mk(s).replace(/[A-Za-zΔ][A-Za-z0-9]*|[α-ω]/g,m=>m===t?`<span class="var">${m}</span>`:m);}
 function fxFor(q){return q.mode==='x'?eqX:q.mode==='formula'?(s=>eqF(s,q.target)):mkQ;}
 function starsTxt(n){return `<span class="st" role="img" aria-label="${n} ${Lg('von','of')} 3 ${Lg('Sternen','stars')}">${'★'.repeat(n)}<i>${'★'.repeat(3-n)}</i></span>`;}
 function stepsHTML(rs,fx,fin=true){
-  return `<div class="steps">`+rs.map((r,i)=>`<div class="step${fin&&i===rs.length-1?' final':''}"><span class="eq">${fx(r.eq)}</span>${r.op?`<span class="op">${esc(dv(r.op))}</span>`:''}${r.note?`<span class="note">${mk(r.note)}</span>`:''}</div>`).join('')+`</div>`;
+  return `<div class="steps">`+rs.map((r,i)=>`<div class="step${fin&&i===rs.length-1?' final':''}"><span class="eq">${fx(r.eq)}</span>${r.op?`<span class="op">${mk(r.op)}</span>`:''}${r.note?`<span class="note">${mk(r.note)}</span>`:''}</div>`).join('')+`</div>`;
 }
 const SR=(r,fx=mkQ,fin=true)=>stepsHTML(rows(r),fx,fin);
 const KV=(list,cls='')=>`<div class="kv ${cls}">`+list.map(it=>`<div>${it.map(s=>`<span>${mk(s)}</span>`).join('')}</div>`).join('')+`</div>`;
@@ -86,7 +97,7 @@ function sndSVG(on){
   const sp='<path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4z"/>';
   return `<svg viewBox="0 0 24 24">${sp}${on?'<path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.6a7.5 7.5 0 0 1 0 10.8"/>':'<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
 }
-function icoHTML(tid,big){const u=TOPIC_UI[tid];return `<span class="ico${big?' big':''}" style="background:${u.col}" aria-hidden="true">${u.ico}</span>`;}
+function icoHTML(tid,big){const u=TOPIC_UI[tid];return `<span class="ico${big?' big':''}${u.svg?' svgi':''}" style="background:${u.col}" aria-hidden="true">${u.svg||u.ico}</span>`;}
 function navbar(backLabel,act,title='',right=''){
   return `<nav class="navbar"><button class="back" data-act="${act}"><span aria-hidden="true">‹</span>${esc(backLabel)}</button><b class="ntitle">${esc(title)}</b><span class="nright">${right}</span></nav>`;
 }
@@ -99,8 +110,24 @@ function toTop(){try{window.scrollTo({top:0});}catch(e){}}
 let toastT=null;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;},2600);}
 function suggested(tid){
-  const ss=TOPIC(tid).levels.map((_,i)=>lvStars(tid,i+1,S.mode));
+  const ss=topicOf(tid).levels.map((_,i)=>lvStars(tid,i+1,S.mode));
   let k=ss.findIndex(s=>s===0);if(k<0)k=ss.findIndex(s=>s<3);return k;
+}
+
+function dimBar(f){return `<span class="dimbar" aria-hidden="true"><i style="width:${Math.round(Math.max(0,Math.min(1,f))*100)}%"></i></span>`;}
+const meter=(f,sz)=>S.subj==='mech'?dimBar(f):ring(f,sz);
+const SUBJ_NAME=()=>S.subj==='mech'?Lg('Mechanik','Mechanics'):'Mathe';
+const hubBar=(title=SUBJ_NAME())=>navbar(Lg('Fächer','Subjects'),'hub',title);
+function settingsHTML(){
+  return `<h2 class="sh">${Lg('Einstellungen','Settings')}</h2>
+  <div class="group"><button class="row" role="switch" aria-checked="${soundOn}" data-act="sound" aria-label="${Lg('Ton bei Richtig und Falsch','Sound for right and wrong')}"><span class="ico snd${soundOn?'':' off'}" id="snd-ico" aria-hidden="true">${sndSVG(soundOn)}</span><span class="switch" aria-checked="${soundOn}" aria-hidden="true"><i></i></span></button>${langRow()}</div>`;
+}
+function contHTML(list,lastId){
+  const order=[lastId,...list.map(t=>t.id).filter(id=>id!==lastId)];
+  let c=null;for(const id of order){const k=suggested(id);if(k>=0){c={tid:id,lv:k+1};break;}}
+  return c?(()=>{const T=topicOf(c.tid),L=T.levels[c.lv-1];
+      return `<button class="cont" data-act="start-at" data-topic="${c.tid}" data-lv="${c.lv}"><span class="t"><small>${Lg('Weitermachen','Continue')}${S.mode==='h'?' · '+Lg('Schwer','Hard'):''}</small><b>${esc(L.name)}</b><span>${esc(T.tab)} · Level ${c.lv}</span></span><span class="play" aria-hidden="true"></span></button>`;})()
+    :`<div class="cont done"><span class="t"><small>${Lg('Alles geschafft','All done')}</small><b>${Lg('Jedes Level hat 3 Sterne','Every level has 3 stars')}</b><span>${S.mode==='n'?Lg('Probier den Modus Schwer.','Try Hard mode.'):Lg('Stark gerechnet!','Great job!')}</span></span></div>`;
 }
 
 /* =================== Seiten =================== */
@@ -108,25 +135,40 @@ function langRow(){
   const g='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.5 2.4 3.8 5.2 3.8 8.5s-1.3 6.1-3.8 8.5c-2.5-2.4-3.8-5.2-3.8-8.5S9.5 5.9 12 3.5z"/></svg>';
   return `<div class="row"><span class="ico snd" aria-hidden="true">${g}</span><div class="segc lang" role="radiogroup" aria-label="Sprache / Language"><button role="radio" aria-checked="${!EN}" data-act="lang" data-lang="de">Deutsch</button><button role="radio" aria-checked="${EN}" data-act="lang" data-lang="en">English</button></div></div>`;
 }
+function renderHub(){
+  const mt=totalStars(TOPICS),mm=maxStars(TOPICS),qt=totalStars(MTOPICS),qm=maxStars(MTOPICS);
+  const fx='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 31h40"/><path d="M24 31l-8 12h16z"/><path d="M9 31V18M9 18l-3.5 5M9 18l3.5 5"/><path d="M39 31V10M39 31l-3.5-5M39 31l3.5-5"/></svg>';
+  scr.innerHTML=`<header class="lt-head"><h1 class="lt">SA-Ready</h1><p class="lt-sub">${Lg('Wähle ein Fach.','Choose a subject.')}</p></header>
+  <button class="subj s-mathe" data-act="open-subj" data-subj="mathe"><span class="sico" aria-hidden="true">x=</span><span class="t"><b>Mathe</b><span>${Lg('Gleichungen, Potenzen, Einheiten, Winkel','Equations, powers, units, angles')}</span><em>★ ${mt} ${Lg('von','of')} ${mm}</em></span><span class="r">${ring(mt/mm,34)}<span class="chev" aria-hidden="true">›</span></span></button>
+  <button class="subj s-mech" data-act="open-subj" data-subj="mech"><span class="sico" aria-hidden="true">${fx}</span><span class="t"><small>${Lg('Technische Mechanik','Engineering mechanics')}</small><b>${Lg('Mechanik','Mechanics')}</b><span>${Lg('Kräfte, Momente, Lager, Statik','Forces, moments, supports, statics')}</span><em>★ ${qt} ${Lg('von','of')} ${qm}</em>${dimBar(qt/qm)}</span><span class="r"><span class="chev" aria-hidden="true">›</span></span></button>
+  ${settingsHTML()}`;
+}
 function renderHome(){
   const tot=totalStars(),max=maxStars();
-  const order=[S.lastTopic,...TOPICS.map(t=>t.id).filter(id=>id!==S.lastTopic)];
-  let c=null;for(const id of order){const k=suggested(id);if(k>=0){c={tid:id,lv:k+1};break;}}
-  const cont=c?(()=>{const T=TOPIC(c.tid),L=T.levels[c.lv-1];
-      return `<button class="cont" data-act="start-at" data-topic="${c.tid}" data-lv="${c.lv}"><span class="t"><small>${Lg('Weitermachen','Continue')}${S.mode==='h'?' · '+Lg('Schwer','Hard'):''}</small><b>${esc(L.name)}</b><span>${esc(T.tab)} · Level ${c.lv}</span></span><span class="play" aria-hidden="true"></span></button>`;})()
-    :`<div class="cont done"><span class="t"><small>${Lg('Alles geschafft','All done')}</small><b>${Lg('Jedes Level hat 3 Sterne','Every level has 3 stars')}</b><span>${S.mode==='n'?Lg('Probier den Modus Schwer.','Try Hard mode.'):Lg('Stark gerechnet!','Great job!')}</span></span></div>`;
-  scr.innerHTML=`<header class="lt-head"><h1 class="lt">SA-Ready</h1><p class="lt-sub">★ ${tot} ${Lg('von','of')} ${max} ${Lg('Sternen','stars')}</p></header>
+  scr.innerHTML=`${hubBar('')}<header class="lt-head"><h1 class="lt">Mathe</h1><p class="lt-sub">★ ${tot} ${Lg('von','of')} ${max} ${Lg('Sternen','stars')}</p></header>
   ${segHTML()}
-  ${cont}
+  ${contHTML(TOPICS,S.lastTopic)}
   <h2 class="sh">${Lg('Themen','Topics')}</h2>
   <div class="group ind">${TOPICS.map(t=>{
     const n=t.levels.length,ss=t.levels.map((_,i)=>lvStars(t.id,i+1,S.mode)),done=ss.filter(s=>s>0).length,sum=ss.reduce((a,b)=>a+b,0);
     return `<button class="row" data-act="open-topic" data-topic="${t.id}">${icoHTML(t.id)}<span class="t"><b>${esc(t.name)}</b><span>${done?Lg(`${done} von ${n} Level · ★ ${sum} von ${n*3}`,`${done} of ${n} levels · ★ ${sum} of ${n*3}`):Lg('noch nicht begonnen','not started yet')}</span></span><span class="r">${ring(sum/(n*3))}<span class="chev" aria-hidden="true">›</span></span></button>`;}).join('')}</div>
-  <h2 class="sh">${Lg('Einstellungen','Settings')}</h2>
-  <div class="group"><button class="row" role="switch" aria-checked="${soundOn}" data-act="sound" aria-label="${Lg('Ton bei Richtig und Falsch','Sound for right and wrong')}"><span class="ico snd${soundOn?'':' off'}" id="snd-ico" aria-hidden="true">${sndSVG(soundOn)}</span><span class="switch" aria-checked="${soundOn}" aria-hidden="true"><i></i></span></button>${langRow()}</div>`;
+  ${settingsHTML()}`;
+}
+function renderHomeM(){
+  const tot=totalStars(),max=maxStars();
+  const tiles=MTOPICS.map((t,i)=>{
+    const n=t.levels.length,sum=starsFor(t.id,S.mode);
+    return `<button class="tile" data-act="open-topic" data-topic="${t.id}"><span class="tn">${Lg('Blatt','Sheet')} ${i+1}</span>${icoHTML(t.id,true)}<b>${esc(t.tab)}</b><span class="ts">★ ${sum} ${Lg('von','of')} ${n*3}</span>${dimBar(sum/(n*3))}</button>`;}).join('');
+  scr.innerHTML=`${hubBar('')}<header class="mhead"><div><small>${Lg('Technische Mechanik','Engineering mechanics')}</small><h1 class="lt">${Lg('Statik','Statics')}</h1></div><div class="mh-r"><small>${Lg('Sterne','Stars')}</small><b>★ ${tot}/${max}</b></div></header>
+  ${segHTML()}
+  ${contHTML(MTOPICS,S.lastMech)}
+  <h2 class="sh">${Lg('Blätter','Sheets')}</h2>
+  <div class="tiles">${tiles}</div>
+  ${settingsHTML()}
+  <div class="tblock" aria-hidden="true"><div><small>${Lg('Zeichnung','Drawing')}</small><b>SA-Ready · ${Lg('Mechanik','Mechanics')}</b></div><div><small>${Lg('Blätter','Sheets')}</small><b>${MTOPICS.length}</b></div><div><small>Level</small><b>${MTOPICS.reduce((a,t)=>a+t.levels.length,0)}</b></div><div><small>${Lg('Maßstab','Scale')}</small><b>1 : 1</b></div></div>`;
 }
 function renderTopic(){
-  const T=TOPIC(S.topic),h=S.mode==='h',cur=suggested(T.id);
+  const T=topicOf(S.topic),h=S.mode==='h',cur=suggested(T.id);
   scr.innerHTML=`${navbar(Lg('Üben','Practice'),'back')}
   <header class="lt-head with-ico">${icoHTML(T.id,true)}<div><h1 class="lt">${esc(T.name)}</h1><p class="lt-sub">${esc(T.sub)}</p></div></header>
   ${segHTML()}
@@ -137,30 +179,42 @@ function renderTopic(){
     return `<button class="row" data-act="start" data-lv="${id}"><span class="num${s===3?' full':''}${i===cur?' cur':''}">${id}</span><span class="t"><b>${esc(l.name)}</b><span>${esc(h?l.descH:l.desc)}</span><code>${mk(h?l.exH:l.ex)}</code>${meta?`<span class="meta">${meta}</span>`:''}</span><span class="r">${starsTxt(s)}<span class="chev" aria-hidden="true">›</span></span></button>`;}).join('')}</div>
   <div class="group" style="margin-top:6px"><button class="row" data-act="open-learn" data-topic="${T.id}"><span class="t"><b>${Lg('Grundlagen zu diesem Thema','Basics for this topic')}</b><span>${Lg('Erklärungen, Beispiele, typische Fehler','Explanations, examples, common mistakes')}</span></span><span class="r"><span class="chev" aria-hidden="true">›</span></span></button></div>`;
 }
+function renderTopicM(){
+  const T=topicOf(S.topic),h=S.mode==='h',cur=suggested(T.id),idx=MTOPICS.indexOf(T)+1;
+  scr.innerHTML=`${navbar(Lg('Blätter','Sheets'),'back')}
+  <header class="mhead with-ico">${icoHTML(T.id,true)}<div><small>${Lg('Blatt','Sheet')} ${idx}</small><h1 class="lt">${esc(T.name)}</h1><p class="lt-sub">${mk(T.sub)}</p></div></header>
+  ${segHTML()}
+  <h2 class="sh">${Lg('Stückliste · je 8 Aufgaben','Parts list · 8 questions each')}</h2>
+  <div class="bom"><div class="bom-h"><span>${Lg('Pos.','Item')}</span><span>${Lg('Benennung','Description')}</span><span>${Lg('Sterne','Stars')}</span></div>${T.levels.map((l,i)=>{
+    const id=i+1,s=lvStars(T.id,id,S.mode),best=lvBest(T.id,id,S.mode),nt=noteOf(T.id,id).trim();
+    const meta=[best?Lg(`Bestwert ${best}`,`Best ${best}`):'',nt?Lg('mit Notizen','with notes'):''].filter(Boolean).join(' · ');
+    return `<button class="bom-r" data-act="start" data-lv="${id}"><span class="pos${s===3?' full':''}${i===cur?' cur':''}">${id}</span><span class="t"><b>${esc(l.name)}</b><span>${mk(h?l.descH:l.desc)}</span><code>${mk(h?l.exH:l.ex)}</code>${meta?`<span class="meta">${meta}</span>`:''}</span><span class="r">${starsTxt(s)}<span class="chev" aria-hidden="true">›</span></span></button>`;}).join('')}</div>
+  <div class="group" style="margin-top:6px"><button class="row" data-act="open-learn" data-topic="${T.id}"><span class="t"><b>${Lg('Grundlagen zu diesem Thema','Basics for this topic')}</b><span>${Lg('Erklärungen, Beispiele, typische Fehler','Explanations, examples, common mistakes')}</span></span><span class="r"><span class="chev" aria-hidden="true">›</span></span></button></div>`;
+}
 function renderLearnList(){
-  scr.innerHTML=`<header class="lt-head"><h1 class="lt">${Lg('Grundlagen','Basics')}</h1><p class="lt-sub">${Lg('Erklärungen mit Beispielen und typischen Fehlern.','Explanations with examples and common mistakes.')}</p></header>
-  <div class="group ind">${TOPICS.map(t=>`<button class="row" data-act="open-learn" data-topic="${t.id}">${icoHTML(t.id)}<span class="t"><b>${esc(t.name)}</b><span>${esc(t.sub)}</span></span><span class="r"><span class="chev" aria-hidden="true">›</span></span></button>`).join('')}</div>`;
+  scr.innerHTML=`${hubBar()}<header class="lt-head"><h1 class="lt">${Lg('Grundlagen','Basics')}</h1><p class="lt-sub">${Lg('Erklärungen mit Beispielen und typischen Fehlern.','Explanations with examples and common mistakes.')}</p></header>
+  <div class="group ind">${TL().map(t=>`<button class="row" data-act="open-learn" data-topic="${t.id}">${icoHTML(t.id)}<span class="t"><b>${esc(t.name)}</b><span>${esc(t.sub)}</span></span><span class="r"><span class="chev" aria-hidden="true">›</span></span></button>`).join('')}</div>`;
 }
 function renderLearnPage(){
-  const T=TOPIC(S.topic),f=(EN?{gl:learnGlEn,pot:learnPotEn,ein:learnEinEn,win:learnWinEn}:{gl:learnGl,pot:learnPot,ein:learnEin,win:learnWin})[S.topic];
+  const T=topicOf(S.topic),f=S.subj==='mech'?MLEARN[S.topic]:(EN?{gl:learnGlEn,pot:learnPotEn,ein:learnEinEn,win:learnWinEn}:{gl:learnGl,pot:learnPot,ein:learnEin,win:learnWin})[S.topic];
   scr.innerHTML=`${navbar(S.tab==='ueben'?T.tab:Lg('Grundlagen','Basics'),'back')}
   <header class="lt-head with-ico">${icoHTML(T.id,true)}<div><h1 class="lt">${esc(T.name)}</h1><p class="lt-sub">${Lg('Grundlagen','Basics')}</p></div></header>
   <div class="learn">${f()}</div>`;
 }
 function renderNotesList(){
-  scr.innerHTML=`<header class="lt-head"><h1 class="lt">${Lg('Notizen','Notes')}</h1><p class="lt-sub">${Lg('Ein Notizblatt pro Level. Tippe auf ein Level, um zu schreiben.','One notepad per level. Tap a level to write.')}</p></header>`+
-  TOPICS.map(t=>`<h2 class="sh">${esc(t.name)}</h2><div class="group ind2">${t.levels.map((l,i)=>{
+  scr.innerHTML=`${hubBar()}<header class="lt-head"><h1 class="lt">${Lg('Notizen','Notes')}</h1><p class="lt-sub">${Lg('Ein Notizblatt pro Level. Tippe auf ein Level, um zu schreiben.','One notepad per level. Tap a level to write.')}</p></header>`+
+  TL().map(t=>`<h2 class="sh">${esc(t.name)}</h2><div class="group ind2">${t.levels.map((l,i)=>{
     const id=i+1,tx=noteOf(t.id,id).trim();
     return `<button class="row" data-act="notes-open" data-topic="${t.id}" data-lv="${id}"><span class="num sm">${id}</span><span class="t"><b>${esc(l.name)}</b>${tx?`<span class="prev">${esc(tx.split('\n').filter(Boolean).slice(0,2).join(' · ').slice(0,120))}</span>`:`<span>${Lg('Noch leer','Still empty')}</span>`}</span><span class="r"><span class="chev" aria-hidden="true">›</span></span></button>`;}).join('')}</div>`).join('');
 }
 function renderProgress(){
   const tot=totalStars(),max=maxStars();
-  scr.innerHTML=`<header class="lt-head"><h1 class="lt">${Lg('Fortschritt','Progress')}</h1><p class="lt-sub">${Lg('Sterne pro Level: 3 Sterne ab 7 von 8 richtig.','Stars per level: 3 stars from 7 of 8 correct.')}</p></header>
-  <div class="group"><div class="row big">${ring(tot/max,56)}<span class="t"><b>★ ${tot} ${Lg('von','of')} ${max}</b><span>${Lg('Alle Themen, Normal und Schwer zusammen','All topics, Normal and Hard combined')}</span></span></div></div>`+
-  TOPICS.map(t=>{const m=t.levels.length*3,n=starsFor(t.id,'n'),h=starsFor(t.id,'h');
+  scr.innerHTML=`${hubBar()}<header class="lt-head"><h1 class="lt">${Lg('Fortschritt','Progress')}</h1><p class="lt-sub">${Lg('Sterne pro Level: 3 Sterne ab 7 von 8 richtig.','Stars per level: 3 stars from 7 of 8 correct.')}</p></header>
+  <div class="group"><div class="row big">${meter(tot/max,56)}<span class="t"><b>★ ${tot} ${Lg('von','of')} ${max}</b><span>${Lg('Alle Themen, Normal und Schwer zusammen','All topics, Normal and Hard combined')}</span></span></div></div>`+
+  TL().map(t=>{const m=t.levels.length*3,n=starsFor(t.id,'n'),h=starsFor(t.id,'h');
     return `<h2 class="sh">${esc(t.name)}</h2><div class="group">
-      <div class="row">${ring(n/m)}<span class="t"><b>Normal</b></span><span class="r">★ ${n} ${Lg('von','of')} ${m}</span></div>
-      <div class="row">${ring(h/m)}<span class="t"><b>${Lg('Schwer','Hard')}</b></span><span class="r">★ ${h} ${Lg('von','of')} ${m}</span></div>
+      <div class="row">${meter(n/m)}<span class="t"><b>Normal</b></span><span class="r">★ ${n} ${Lg('von','of')} ${m}</span></div>
+      <div class="row">${meter(h/m)}<span class="t"><b>${Lg('Schwer','Hard')}</b></span><span class="r">★ ${h} ${Lg('von','of')} ${m}</span></div>
       ${t.levels.map((l,i)=>`<div class="row"><span class="t"><b>${i+1} · ${esc(l.name)}</b></span><span class="r"><span class="mini">N</span>${starsTxt(lvStars(t.id,i+1,'n'))}<span class="mini">${Lg('S','H')}</span>${starsTxt(lvStars(t.id,i+1,'h'))}</span></div>`).join('')}
     </div>`;}).join('')+
   `<p class="fine" style="margin:12px 6px 0">${Lg('Fortschritt und Notizen werden nur auf diesem Gerät gespeichert.','Progress and notes are only saved on this device.')}</p>`;
@@ -169,19 +223,19 @@ function renderProgress(){
 /* =================== Runde =================== */
 const progW=()=>Math.round((S.i+(S.done?1:0))/S.qs.length*100);
 function renderQ(){
-  const q=S.qs[S.i],T=TOPIC(S.topic),fx=fxFor(q);
-  const tag=(q.ctx||S.mode==='h')?`<p class="qtag">${q.ctx?`<span>${esc(q.ctx)}</span>`:''}${S.mode==='h'?'<span class="hchip">'+Lg('Schwer','Hard')+'</span>':''}</p>`:'';
-  const given=q.given?`<div class="given">${q.given.map(g=>`<span>${esc(g[0])} = ${esc(g[1])}</span>`).join('')}</div>`:'';
+  const q=S.qs[S.i],T=topicOf(S.topic),fx=fxFor(q);
+  const tag=(q.ctx||S.mode==='h')?`<p class="qtag">${q.ctx?`<span>${mk(q.ctx)}</span>`:''}${S.mode==='h'?'<span class="hchip">'+Lg('Schwer','Hard')+'</span>':''}</p>`:'';
+  const given=q.given?`<div class="given">${q.given.map(g=>`<span>${mk(g[0])} = ${mk(g[1])}</span>`).join('')}</div>`:'';
   const num=q.kind!=='mc';
-  const input=num?`<label class="ans" id="ansbox" for="ans"><span class="pre">${fx(q.pre)}</span><input id="ans" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="${Lg('Deine Lösung','Your answer')}">${q.unit?`<span class="unit">${esc(q.unit)}</span>`:''}<span class="mark" aria-hidden="true"></span></label>${q.fine?`<p class="fine">${mk(q.fine)}</p>`:''}<p class="msg" id="msg"></p>`:'';
+  const input=num?`<label class="ans" id="ansbox" for="ans"><span class="pre">${fx(q.pre)}</span><input id="ans" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="${Lg('Deine Lösung','Your answer')}">${q.unit?`<span class="unit">${mk(q.unit)}</span>`:''}<span class="mark" aria-hidden="true"></span></label>${q.fine?`<p class="fine">${mk(q.fine)}</p>`:''}<p class="msg" id="msg"></p>`:'';
   const opts=num?'':`<h2 class="sh">${Lg('Wähle die richtige Antwort','Choose the correct answer')}</h2><div class="group">${q.options.map((o,k)=>`<button class="row opt" data-act="opt" data-i="${k}"><span class="t"><b>${mk(o)}</b></span><span class="mark" aria-hidden="true"></span></button>`).join('')}</div>`;
   scr.innerHTML=`${navbar(T.tab,'quit',`Level ${S.lv}`,`<button class="nlink" data-act="notes-open" data-topic="${S.topic}" data-lv="${S.lv}">${Lg('Notizen','Notes')}</button>`)}
   <div class="qprog"><div class="track"><span id="qbar" style="width:${progW()}%"></span></div><span>${S.i+1} / ${S.qs.length}</span></div>
   <section class="qcard">
     ${tag}
-    <p class="qlabel">${esc(q.label)}</p>
+    <p class="qlabel">${mk(q.label)}</p>
     ${q.fig?`<div class="fig">${q.fig}<p class="fine">${esc(q.figNote||'')}</p></div>`:''}
-    <h2 class="qeq">${fx(q.eq)}</h2>
+    <h2 class="qeq${q.long?' long':''}">${fx(q.eq)}</h2>
     ${given}
     ${input}
     <div class="fbrow" id="fbrow" hidden></div>
@@ -235,8 +289,8 @@ function check(sel){
   reveal(S.last,true);
 }
 function startRound(lv){
-  S.lastTopic=S.topic;saveUI();
-  Object.assign(S,{view:'round',lv,qs:buildQs(S.topic,lv,S.mode==='h'),i:0,score:0,correct:0,streak:0,maxStreak:0,tip:false,done:false,last:null,results:[],wrong:[]});
+  if(S.subj==='mech')S.lastMech=S.topic;else S.lastTopic=S.topic;saveUI();
+  Object.assign(S,{view:'round',lv,qs:topicOf(S.topic).levels[lv-1].make(S.mode==='h'),i:0,score:0,correct:0,streak:0,maxStreak:0,tip:false,done:false,last:null,results:[],wrong:[]});
   push();render();toTop();
 }
 function next(){
@@ -254,7 +308,7 @@ function finish(){
   render();toTop();
 }
 function renderResult(){
-  const T=TOPIC(S.topic),lv=T.levels[S.lv-1],st=S.starsNow,nextLv=T.levels[S.lv];
+  const T=topicOf(S.topic),lv=T.levels[S.lv-1],st=S.starsNow,nextLv=T.levels[S.lv];
   const head=st===3?Lg('Stark gerechnet!','Great job!'):st===2?Lg('Gut gemacht!','Well done!'):st===1?Lg('Geschafft!','Made it!'):Lg('Weiter üben!','Keep practising!');
   const msg=st===3?Lg('Fast alles richtig. Weiter so!','Almost everything correct. Keep it up!'):st===2?Lg('Ein paar Fehler lohnen sich zum Nachschauen.','A few mistakes are worth a look.'):st===1?Lg('Schau dir die Fehler unten an und versuch es nochmal.','Look at the mistakes below and try again.'):Lg('Lies in den Grundlagen nach und versuch es dann erneut.','Read the basics and then try again.');
   const fxs=S.wrong.map(q=>({q,fx:fxFor(q)}));
@@ -276,7 +330,7 @@ function renderResult(){
 }
 
 /* =================== Navigation =================== */
-function snap(depth){return {tab:S.tab,page:S.page,topic:S.topic,view:S.view,depth:depth==null?((history.state&&history.state.depth)||0):depth};}
+function snap(depth){return {subj:S.subj,tab:S.tab,page:S.page,topic:S.topic,view:S.view,depth:depth==null?((history.state&&history.state.depth)||0):depth};}
 function push(){try{history.pushState(snap(((history.state&&history.state.depth)||0)+1),'');}catch(e){}}
 function go(changes){Object.assign(S,changes);push();render();toTop();}
 function parentOf(){
@@ -301,19 +355,26 @@ window.addEventListener('popstate',e=>{
   }
   clearTimeout(S.popArm);S.popArm=null;
   const st=e.state||{tab:'ueben',page:'home',topic:S.topic,view:'tabs'};
-  Object.assign(S,{tab:st.tab||'ueben',page:st.page||ROOT[st.tab||'ueben'],topic:st.topic||S.topic,view:'tabs'});
+  Object.assign(S,{subj:st.subj==='mathe'||st.subj==='mech'?st.subj:null,tab:st.tab||'ueben',page:st.page||ROOT[st.tab||'ueben'],topic:st.topic||S.topic,view:'tabs'});
   if(st.view==='round'||st.view==='result')S.page=S.tab==='ueben'?'topic':S.page;
   render();toTop();
 });
 
+function skin(){
+  const m=S.subj==='mech';
+  document.documentElement.classList.toggle('m',m);
+  document.querySelectorAll('meta[name="theme-color"]').forEach(el=>{if(!el.dataset.c0)el.dataset.c0=el.content;el.content=m?'#0A2A4E':el.dataset.c0;});
+}
 function render(){
-  const inRound=S.view!=='tabs';
-  $('#tabbar').hidden=inRound;
+  const inRound=S.view!=='tabs',hub=!S.subj;
+  $('#tabbar').hidden=inRound||hub;
   document.body.classList.toggle('in-round',inRound);
+  skin();
+  if(hub){renderHub();return;}
   document.querySelectorAll('#tabbar button').forEach(b=>{if(b.dataset.tab===S.tab&&!inRound)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   if(S.view==='round')renderQ();
   else if(S.view==='result')renderResult();
-  else if(S.tab==='ueben')(S.page==='topic'?renderTopic:S.page==='learn'?renderLearnPage:renderHome)();
+  else if(S.tab==='ueben'){const M=S.subj==='mech';(S.page==='topic'?(M?renderTopicM:renderTopic):S.page==='learn'?renderLearnPage:(M?renderHomeM:renderHome))();}
   else if(S.tab==='grund')(S.page==='learn'?renderLearnPage:renderLearnList)();
   else if(S.tab==='notiz')renderNotesList();
   else renderProgress();
@@ -327,6 +388,12 @@ document.addEventListener('click',e=>{
     const t=b.dataset.tab;
     if(t===S.tab&&S.page===ROOT[t]){toTop();return;}
     Object.assign(S,{tab:t,page:ROOT[t],view:'tabs'});
+    try{history.replaceState(snap(S.subj?1:0),'');}catch(err){}
+    render();toTop();
+  }
+  else if(a==='open-subj'){const m=b.dataset.subj==='mech';go({subj:m?'mech':'mathe',topic:m?S.lastMech:S.lastTopic,tab:'ueben',page:'home',view:'tabs'});}
+  else if(a==='hub'){
+    Object.assign(S,{subj:null,tab:'ueben',page:'home',view:'tabs'});
     try{history.replaceState(snap(0),'');}catch(err){}
     render();toTop();
   }
@@ -342,7 +409,7 @@ document.addEventListener('click',e=>{
   else if(a==='quit'){
     if(S.results.length&&!S.quitArm){
       b.innerHTML=Lg('Runde beenden?','End round?');b.classList.add('arm');
-      S.quitArm=setTimeout(()=>{S.quitArm=null;if(b.isConnected){b.innerHTML=`<span aria-hidden="true">‹</span>${esc(TOPIC(S.topic).tab)}`;b.classList.remove('arm');}},3000);
+      S.quitArm=setTimeout(()=>{S.quitArm=null;if(b.isConnected){b.innerHTML=`<span aria-hidden="true">‹</span>${esc(topicOf(S.topic).tab)}`;b.classList.remove('arm');}},3000);
       return;
     }
     clearTimeout(S.quitArm);S.quitArm=null;
@@ -373,8 +440,9 @@ document.addEventListener('click',e=>{
   else if(a==='sym')insertNote(b.dataset.s);
   else if(a==='note-task'){
     const q=S.qs[S.i];if(!q)return;
-    let s=Lg('Aufgabe: ','Task: ')+dv(q.eq).replace(/\^\{([^}]*)\}/g,'^$1');
-    if(q.given)s+='  ('+q.given.map(g=>g[0]+' = '+g[1]).join(', ')+')';
+    const pl=x=>dv(x).replace(/\^\{([^}]*)\}/g,'^$1').replace(/_\{([^}]*)\}/g,'$1');
+    let s=Lg('Aufgabe: ','Task: ')+pl(q.eq);
+    if(q.given)s+='  ('+q.given.map(g=>pl(g[0])+' = '+pl(g[1])).join(', ')+')';
     const at=ta.selectionStart??ta.value.length;
     if(at>0&&ta.value[at-1]!=='\n')s='\n'+s;
     insertNote(s+'\n');
@@ -400,7 +468,7 @@ const ta=$('#notes-text');
 const NT={key:'',topic:'',lv:0,map:store.get(LS.notes,{})||{},clearArm:null,saveT:null};
 function noteOf(tid,lv){const n=NT.map[tid+'-'+lv];return n&&typeof n.text==='string'?n.text:'';}
 function openNotes(tid,lv){
-  const T=TOPIC(tid);
+  const T=topicOf(tid);
   NT.key=tid+'-'+lv;NT.topic=tid;NT.lv=lv;ta.value=noteOf(tid,lv);
   $('#notes-lv').textContent=`${T.tab} · Level ${lv} · ${T.levels[lv-1].name}`;
   $('#note-task-btn').hidden=!(S.view==='round'&&tid===S.topic&&lv===S.lv);
@@ -438,7 +506,7 @@ function applyLang(){
   if(!EN)return;
   document.documentElement.lang='en';
   const m=document.querySelector('meta[name="description"]');
-  if(m)m.content='Practise technical maths: equations and formulas, powers, unit conversion and trigonometry. Every question comes with a worked solution.';
+  if(m)m.content='Practise technical maths and statics: equations, powers, unit conversion, trigonometry, forces, moments and supports. Every question comes with a worked solution.';
   const set=(sel,txt)=>{const e=document.querySelector(sel);if(!e)return;const n=[...e.childNodes].reverse().find(x=>x.nodeType===3&&x.nodeValue.trim());if(n)n.nodeValue=txt;else e.textContent=txt;};
   const attr=(sel,a,v)=>{const e=document.querySelector(sel);if(e)e.setAttribute(a,v);};
   attr('#tabbar','aria-label','Sections');
@@ -453,7 +521,8 @@ function applyLang(){
   set('#notes-stat','Saved on this device');set('#note-task-btn','Insert question');set('#notes [data-act="note-clear"]','Clear');
 }
 applyLang();
-try{history.replaceState(snap(0),'');}catch(e){}
+(()=>{const st=history.state;if(st&&(st.subj==='mathe'||st.subj==='mech')&&st.tab==='ueben'&&st.page==='home'&&st.view==='tabs'){S.subj=st.subj;S.topic=st.subj==='mech'?S.lastMech:S.lastTopic;}})();
+try{history.replaceState(snap(S.subj?undefined:0),'');}catch(e){}
 render();
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});

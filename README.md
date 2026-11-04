@@ -1,10 +1,14 @@
 # SA-Ready
 
-Trainings-App für Fachrechnen: Gleichungen und Formeln, Potenzen und Zehnerpotenzen, Einheiten umrechnen und Winkelfunktionen. Jede Aufgabe kommt mit dem Lösungsweg.
+Trainings-App mit zwei Fächern: **Mathe** (Fachrechnen) und **Mechanik** (Technische Mechanik, Statik). Jede Aufgabe kommt mit dem Lösungsweg.
 
 **App öffnen:** https://anis333.github.io/SA-Ready/
 
 ## Was drin ist
+
+Auf der Startseite wählst du das Fach. Beide Fächer sind gleich aufgebaut (Themen, Level, Normal und Schwer, Sterne, Grundlagen, Notizen, Fortschritt), Mechanik hat ein eigenes Layout im Stil einer Konstruktionszeichnung.
+
+### Mathe
 
 | Thema | Level |
 |---|---|
@@ -12,6 +16,18 @@ Trainings-App für Fachrechnen: Gleichungen und Formeln, Potenzen und Zehnerpote
 | Potenzen & Zehnerpotenzen | Potenzen berechnen · Potenzgesetze · Zehnerpotenzen schreiben · Rechnen mit Zehnerpotenzen · Vorsilben |
 | Einheiten umrechnen | Längen · Flächen · Volumen · Zeit & Geschwindigkeit · Kraft, Masse, Druck, Zoll |
 | Winkelfunktionen | Seiten erkennen · Seite berechnen · Winkel berechnen · Aus der Werkstatt |
+
+### Mechanik
+
+| Thema | Level |
+|---|---|
+| Kraft & Gewicht | Gewichtskraft · Kräfte auf einer Linie · Grundbegriffe · Aus der Werkstatt |
+| Kräfte zerlegen & zusammensetzen | Komponenten · Betrag & Richtung · Zwei Kräfte · Drei Kräfte · Seilkräfte |
+| Kraftmoment | Moment berechnen · Kraft oder Hebelarm · Drehsinn & Summe · Kräftepaar · Getriebe & Antriebe |
+| Freimachen & Lager | Lagerarten · Seile, Stäbe, Reibung · Gleichgewichtslagen · Statisch bestimmt? |
+| Statik: Lagerkräfte | Hebelgesetz · Träger mit einer Last · Mehrere Lasten · Schräge Kraft · Aus der Werkstatt |
+
+### In beiden Fächern
 
 - Jedes Level gibt es in **Normal** und **Schwer**, die Sterne werden getrennt gezählt.
 - 8 Aufgaben pro Runde, die Aufgaben werden jedes Mal neu erzeugt.
@@ -36,10 +52,15 @@ Sterne, Bestwerte und Notizen werden nur im Browser des jeweiligen Geräts gespe
 
 ```
 index.html             Grundgerüst der Seite
-styles.css             Aussehen (hell und dunkel)
-js/aufgaben.js         Aufgaben-Generatoren für alle Themen und Level
-js/grundlagen.js       Erklärseiten (Deutsch)
-js/grundlagen-en.js    Erklärseiten (English)
+styles.css             Aussehen Mathe und Startseite (hell und dunkel)
+mech.css               Layout „Konstruktionszeichnung“ für Mechanik
+js/aufgaben.js         Aufgaben-Generatoren Mathe
+js/mech-kraft.js       Aufgaben-Generatoren Mechanik: Kraft, Zerlegen, Moment
+js/mech-statik.js      Aufgaben-Generatoren Mechanik: Lager, Statik, Themenliste
+js/mech-fig.js         Skizzen für die Mechanik (SVG)
+js/mech-learn.js       Erklärseiten Mechanik (Deutsch und English)
+js/grundlagen.js       Erklärseiten Mathe (Deutsch)
+js/grundlagen-en.js    Erklärseiten Mathe (English)
 js/app.js              Navigation, Runden, Notizen, Fortschritt, Ton
 sw.js                  Offline-Speicher (Service Worker)
 manifest.webmanifest   App-Name und Symbole fürs Installieren

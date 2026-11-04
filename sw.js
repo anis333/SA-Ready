@@ -1,14 +1,19 @@
 /* SA-Ready · Service Worker
    Speichert die App auf dem Gerät, damit sie auch ohne Internet startet.
    Bei einer neuen Version CACHE hochzählen. */
-const CACHE='sa-ready-v3';
+const CACHE='sa-ready-v4';
 const FILES=[
   './',
   './index.html',
   './styles.css',
+  './mech.css',
   './js/aufgaben.js',
   './js/grundlagen.js',
   './js/grundlagen-en.js',
+  './js/mech-fig.js',
+  './js/mech-kraft.js',
+  './js/mech-statik.js',
+  './js/mech-learn.js',
   './js/app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
