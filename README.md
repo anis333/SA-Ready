@@ -17,6 +17,7 @@ Trainings-App für Fachrechnen: Gleichungen und Formeln, Potenzen und Zehnerpote
 - 8 Aufgaben pro Runde, die Aufgaben werden jedes Mal neu erzeugt.
 - Nach jeder Aufgabe: grün oder rot, ein kurzer Ton und der Lösungsweg.
 - **Grundlagen** zu jedem Thema mit Beispielen und typischen Fehlern.
+- **Sprache**: Deutsch oder English, umschaltbar auf der Startseite unter Einstellungen.
 - **Notizen**: ein Notizblatt pro Level.
 - **Fortschritt**: Sterne und Bestwerte pro Level.
 
@@ -37,7 +38,8 @@ Sterne, Bestwerte und Notizen werden nur im Browser des jeweiligen Geräts gespe
 index.html             Grundgerüst der Seite
 styles.css             Aussehen (hell und dunkel)
 js/aufgaben.js         Aufgaben-Generatoren für alle Themen und Level
-js/grundlagen.js       Erklärseiten
+js/grundlagen.js       Erklärseiten (Deutsch)
+js/grundlagen-en.js    Erklärseiten (English)
 js/app.js              Navigation, Runden, Notizen, Fortschritt, Ton
 sw.js                  Offline-Speicher (Service Worker)
 manifest.webmanifest   App-Name und Symbole fürs Installieren
