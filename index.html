@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SA-Ready</title>
+<meta name="description" content="Fachrechnen trainieren: Gleichungen und Formeln, Potenzen, Einheiten umrechnen und Winkelfunktionen. Mit Lösungsweg zu jeder Aufgabe.">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SA-Ready">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app"><main id="screen"></main></div>
+
+<nav class="tabbar" id="tabbar" aria-label="Bereiche">
+  <div class="in">
+    <button data-act="tabbar" data-tab="ueben"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>Üben</button>
+    <button data-act="tabbar" data-tab="grund"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>Grundlagen</button>
+    <button data-act="tabbar" data-tab="notiz"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>Notizen</button>
+    <button data-act="tabbar" data-tab="fort"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Fortschritt</button>
+  </div>
+</nav>
+
+<div class="sheet-bg" id="notes" role="dialog" aria-modal="true" aria-labelledby="notes-h" hidden>
+  <div class="sheet">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="shead"><span></span><b id="notes-h">Notizen</b><button class="done" data-act="notes-close">Fertig</button></div>
+    <p class="slv" id="notes-lv"></p>
+    <div class="sym" role="group" aria-label="Zeichen einfügen">
+      <button type="button" data-act="sym" data-s="·" aria-label="Mal">·</button>
+      <button type="button" data-act="sym" data-s=":" aria-label="Geteilt">:</button>
+      <button type="button" data-act="sym" data-s="−" aria-label="Minus">−</button>
+      <button type="button" data-act="sym" data-s=" | " aria-label="Rechenstrich">|</button>
+      <button type="button" data-act="sym" data-s="²" aria-label="Hoch zwei">²</button>
+      <button type="button" data-act="sym" data-s="π" aria-label="Pi">π</button>
+      <button type="button" data-act="sym" data-s="≈" aria-label="Ungefähr">≈</button>
+      <button type="button" data-act="sym" data-s=" → " aria-label="Pfeil">→</button>
+    </div>
+    <textarea id="notes-text" spellcheck="false" autocapitalize="off" aria-labelledby="notes-h" placeholder="Nebenrechnungen, Merksätze, Fragen an den Lehrer …"></textarea>
+    <div class="nfoot">
+      <span class="nstat" id="notes-stat" aria-live="polite">Auf diesem Gerät gespeichert</span>
+      <div class="nact">
+        <button type="button" class="tlink" id="note-task-btn" data-act="note-task">Aufgabe einfügen</button>
+        <button type="button" class="tlink" data-act="note-clear">Leeren</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<noscript><p style="padding:16px">SA-Ready braucht JavaScript. Bitte im Browser aktivieren.</p></noscript>
+
+<script src="js/aufgaben.js"></script>
+<script src="js/grundlagen.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
