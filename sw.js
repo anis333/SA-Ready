@@ -39,6 +39,8 @@ self.addEventListener('fetch',e=>{
   if(req.method!=='GET')return;
   const url=new URL(req.url);
   if(url.origin!==self.location.origin)return;
+  // Eigenständige Seite im Unterordner: nicht anfassen, sonst überschreibt sie die gespeicherte Startseite
+  if(url.pathname.indexOf('/fx-ready/')!==-1)return;
 
   // Seitenaufruf: zuerst aus dem Netz (für Updates), ohne Netz aus dem Speicher
   if(req.mode==='navigate'){
